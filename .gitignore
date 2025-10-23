@@ -1,0 +1,57 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.log
+
+# --- Virtual environment ---
+.venv/
+venv/
+env/
+
+# --- OS / IDE specific ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Environment and configuration ---
+.env
+*.env
+.env.local
+.env.dev
+.env.prod
+.env.test
+config.yaml
+
+# --- Data and outputs ---
+data/
+!data/.gitkeep       # keep folder structure, ignore contents
+*.parquet
+*.csv
+*.db
+*.sqlite
+*.duckdb
+
+# --- Notebooks ---
+*.ipynb_checkpoints
+.ipynb_checkpoints/
+
+# --- Tests ---
+.coverage
+htmlcov/
+.cache/
+
+# --- Build / packaging ---
+build/
+dist/
+*.egg-info/
+.eggs/
+*.spec
+
+# --- Misc ---
+logs/
+tmp/
+temp/
