@@ -6,6 +6,7 @@ __pycache__/
 *.pkl
 *.log
 
+env_data/
 # --- Virtual environment ---
 .venv/
 venv/
