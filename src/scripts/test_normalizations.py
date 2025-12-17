@@ -11,10 +11,7 @@ from src.adapters.youtube_api import YouTubeAPI
 from src.normalize.spotify_norm import normalize_artist_info, normalize_spotify_daily
 from src.normalize.wikipedia_norm import normalize_wiki_daily
 from src.normalize.youtube_norm import normalize_youtube_daily
-
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+from src.utils import utc_now_iso
 
 
 def main() -> None:

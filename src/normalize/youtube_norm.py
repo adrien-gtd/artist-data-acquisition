@@ -12,9 +12,7 @@ from typing import Any, Dict, Optional
 
 from src.schema.artist_daily import YouTubeArtistDaily
 from src.schema.artist_info import ArtistInfo
-
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+from src.utils import utc_now_iso
 
 
 def _to_int(value: Any) -> Optional[int]:
@@ -36,7 +34,7 @@ def normalize_youtube_daily(
     """
     Normalize a YouTube channel response into a daily snapshot.
     """
-    fetched_at = fetched_at or _utc_now_iso()
+    fetched_at = fetched_at or utc_now_iso()
 
     stats: Dict[str, Any] = {}
     items = raw_channel.get("items")
@@ -67,7 +65,7 @@ def normalize_youtube_info_from_channel(
     """
     Normalize YouTube channel metadata into ArtistInfo fields.
     """
-    fetched_at = fetched_at or _utc_now_iso()
+    fetched_at = fetched_at or utc_now_iso()
 
     channel_id = None
     items = raw_channel.get("items")

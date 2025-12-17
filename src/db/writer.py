@@ -192,11 +192,11 @@ def upsert_youtube_daily(conn: sqlite3.Connection, row: RowLike) -> None:
     conn.commit()
 
 
-def upsert_artist_day(conn: sqlite3.Connection, row: RowLike) -> None:
+def upsert_artist_daily(conn: sqlite3.Connection, row: RowLike) -> None:
     d = _to_dict(row)
     conn.execute(
         """
-        INSERT INTO artist_day (
+        INSERT INTO artist_daily (
             local_artist_id, day_date, job_run_id,
             spotify_followers_total, spotify_popularity, spotify_top_track_popularity_mean,
             wiki_pageviews,

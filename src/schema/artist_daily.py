@@ -60,10 +60,6 @@ class WikiArtistDaily(BaseModel):
         None, description="Wikipedia pageviews for that day"
     )
 
-
-
-
-
 class YouTubeArtistDaily(BaseModel):
     """
     Daily YouTube channel snapshot for one artist.
@@ -86,7 +82,7 @@ class YouTubeArtistDaily(BaseModel):
     video_count: Optional[int] = None
 
 
-class ArtistDay(BaseModel):
+class ArtistDaily(BaseModel):
     """
     Unified daily artist record (cross-platform).
     """

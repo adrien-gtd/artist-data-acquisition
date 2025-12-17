@@ -7,15 +7,12 @@ daily Wikipedia popularity snapshots.
 
 from __future__ import annotations
 
-from datetime import datetime, date, timezone
+from datetime import date
 from typing import Any, Dict, Optional
 
 from src.schema.artist_daily import WikiArtistDaily
 from src.schema.artist_info import ArtistInfo
-
-
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+from src.utils import utc_now_iso
 
 
 def normalize_wiki_daily(
@@ -30,7 +27,7 @@ def normalize_wiki_daily(
     """
     Normalize a Wikimedia Pageviews response into a daily Wikipedia snapshot.
     """
-    fetched_at = fetched_at or _utc_now_iso()
+    fetched_at = fetched_at or utc_now_iso()
 
     pageviews = None
     items = raw_pageviews.get("items")
@@ -59,7 +56,7 @@ def normalize_wiki_info_from_summary(
     """
     Normalize Wikipedia REST summary metadata into ArtistInfo fields.
     """
-    fetched_at = fetched_at or _utc_now_iso()
+    fetched_at = fetched_at or utc_now_iso()
 
     wikipedia_url = None
     content_urls = raw_summary.get("content_urls")

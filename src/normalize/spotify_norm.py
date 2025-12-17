@@ -16,10 +16,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from src.schema.artist_info import ArtistInfo
 from src.schema.artist_daily import SpotifyArtistDaily
-
-def _utc_now_iso() -> str:
-    """Return the current UTC timestamp as an ISO 8601 string."""
-    return datetime.now(timezone.utc).isoformat()
+from src.utils import utc_now_iso
 
 def _pick_best_image_url(images: Any) -> Optional[str]:
     """
@@ -69,24 +66,6 @@ def _safe_max(values) -> Optional[float]:
         return None
     return float(max(nums))
 
-
-def _maybe_build_pydantic(model_cls, payload: Dict[str, Any]):
-    """Build a Pydantic v2 model if present, filtering unknown fields.
-
-    If the schema doesn't exist or construction fails, return the payload dict.
-    """
-    if model_cls is None:
-        return payload
-
-    try:
-        # Pydantic v2
-        allowed = set(getattr(model_cls, "model_fields").keys())
-        filtered = {k: v for k, v in payload.items() if k in allowed}
-        return model_cls(**filtered)
-    except Exception:
-        # Fallback to dict so the pipeline can still run.
-        return payload
-
 def normalize_artist_info(
     raw_artist: Dict[str, Any],
     *,
@@ -100,7 +79,7 @@ def normalize_artist_info(
     This function extracts static or slowly-changing metadata used as
     reference information across platforms.
     """
-    fetched_at = fetched_at or _utc_now_iso()
+    fetched_at = fetched_at or utc_now_iso()
 
     return ArtistInfo(
         local_artist_id=local_artist_id,
@@ -128,7 +107,7 @@ def normalize_spotify_daily(
 
     Produces one record per artist per day, suitable for time-series analysis.
     """
-    fetched_at = fetched_at or _utc_now_iso()
+    fetched_at = fetched_at or utc_now_iso()
     day_date = day_date or datetime.now(timezone.utc).date()
 
     followers_total = None
