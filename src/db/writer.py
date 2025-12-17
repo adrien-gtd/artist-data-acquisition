@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, Optional, List
 import json
 
 from dataclasses import is_dataclass
@@ -226,3 +226,161 @@ def upsert_artist_daily(conn: sqlite3.Connection, row: RowLike) -> None:
         ),
     )
     conn.commit()
+
+
+# Pipelines for provenance tracking
+def upsert_run_meta(
+    conn: sqlite3.Connection,
+    run_id: str,
+    run_day: str,
+    commit_hash: str,
+    started_at: str,
+    ended_at: Optional[str],
+    duration_ms: Optional[int],
+    status: str,
+    error_message: Optional[str] = None,
+    error_type: Optional[str] = None,
+) -> str:
+    conn.execute(
+        """
+        INSERT INTO pipeline_run (
+          run_id, run_day, commit_hash,
+          started_at, ended_at, duration_ms,
+          status, error_message, error_type
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(run_id) DO UPDATE SET
+          run_day = excluded.run_day,
+          commit_hash = excluded.commit_hash,
+          started_at = excluded.started_at,
+          ended_at = excluded.ended_at,
+          duration_ms = excluded.duration_ms,
+          status = excluded.status,
+          error_message = excluded.error_message,
+          error_type = excluded.error_type
+        ;
+        """,
+        (
+            run_id, run_day, commit_hash,
+            started_at, ended_at, duration_ms,
+            status, error_message, error_type
+        ),
+    )
+    conn.commit()
+
+def upsert_run_step_meta(
+    conn: sqlite3.Connection,
+    run_id: str,
+    step_run_id: str,
+    step_name: str,
+    started_at: str,
+    ended_at: Optional[str],
+    success_count: Optional[int],
+    error_count: Optional[int],
+    duration_ms: Optional[int],
+    status: str,
+    inputs: List[str],
+    outputs: List[str],
+    error_message: Optional[str] = None,
+    error_type: Optional[str] = None,
+) -> None:
+    inputs_json = json.dumps(inputs, ensure_ascii=False)
+    outputs_json = json.dumps(outputs, ensure_ascii=False)
+
+    conn.execute(
+        """
+        INSERT INTO pipeline_run_step (
+          step_run_id, run_id,
+          step_name,
+          started_at, ended_at, duration_ms,
+          success_count, error_count,
+          status, inputs_json, outputs_json,
+          error_message, error_type
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(step_run_id) DO UPDATE SET
+          run_id = excluded.run_id,
+          step_name = excluded.step_name,
+          started_at = excluded.started_at,
+          ended_at = excluded.ended_at,
+          duration_ms = excluded.duration_ms,
+          success_count = excluded.success_count,
+          error_count = excluded.error_count,
+          status = excluded.status,
+          inputs_json = excluded.inputs_json,
+          outputs_json = excluded.outputs_json,
+          error_message = excluded.error_message,
+          error_type = excluded.error_type
+        ;
+        """,
+        (
+            step_run_id, run_id,
+            step_name,
+            started_at, ended_at, duration_ms,
+            success_count, error_count,
+            status, inputs_json, outputs_json,
+            error_message, error_type
+        ),
+    )
+    conn.commit()
+
+def upsert_api_request(
+    conn: sqlite3.Connection,
+    run_id: str,
+    step_run_id: str,
+    request_id: str,
+    source: str,
+    local_artist_id: str,
+    platform_id: str,
+    endpoint: Optional[str],
+    request_params: Optional[Dict[str, Any]],
+    requested_at: str,
+    finished_at: str,
+    duration_ms: int,
+    http_status: Optional[int],
+    ok: int,
+    error_type: Optional[str],
+    error_message: Optional[str],
+) -> None:
+    params_json = json.dumps(request_params, ensure_ascii=False) if request_params is not None else None
+
+    conn.execute(
+        """
+        INSERT INTO api_request (
+          request_id, run_id, step_run_id,
+          source, local_artist_id, platform_id,
+          endpoint, request_params_json,
+          requested_at, finished_at, duration_ms,
+          http_status, ok,
+          error_type, error_message
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(request_id) DO UPDATE SET
+          run_id = excluded.run_id,
+          step_run_id = excluded.step_run_id,
+          source = excluded.source,
+          local_artist_id = excluded.local_artist_id,
+          platform_id = excluded.platform_id,
+          endpoint = excluded.endpoint,
+          request_params_json = excluded.request_params_json,
+          requested_at = excluded.requested_at,
+          finished_at = excluded.finished_at,
+          duration_ms = excluded.duration_ms,
+          http_status = excluded.http_status,
+          ok = excluded.ok,
+          error_type = excluded.error_type,
+          error_message = excluded.error_message
+        ;
+        """,
+        (   
+            request_id, run_id, step_run_id,
+            source, local_artist_id, platform_id,
+            endpoint, params_json,
+            requested_at, finished_at, duration_ms,
+            http_status, ok,
+            error_type, error_message
+        ),
+    )
+    conn.commit()
+
+

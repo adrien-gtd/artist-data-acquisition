@@ -3,7 +3,9 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
+
+from src.provenance.fine_grain_provenance import RequestContext
 
 import requests
 
@@ -91,7 +93,7 @@ class SpotifyAPI:
     # ----------------------------
     # HTTP helper with retry / rate limit
     # ----------------------------
-    def _request(self, method: str, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _request(self, method: str, path: str, params: Optional[Dict[str, Any]] = None) -> Tuple[Dict[str, Any], int]:
         token = self._ensure_token()
 
         url = f"{self.API_BASE}{path}"
@@ -134,7 +136,7 @@ class SpotifyAPI:
             if 200 <= resp.status_code < 300:
                 if resp.text.strip() == "":
                     return {}
-                return resp.json()
+                return resp.json(), resp.status_code
 
             # Other errors: stop
             raise SpotifyAPIError(
@@ -146,9 +148,13 @@ class SpotifyAPI:
     # ----------------------------
     # Public raw fetch methods
     # ----------------------------
-    def get_artist(self, artist_id: str) -> Dict[str, Any]:
+    def get_artist(self, artist_id: str, request_ctx: Optional[RequestContext] = None) -> Dict[str, Any]:
         """Raw: GET /artists/{id}"""
-        return self._request("GET", f"/artists/{artist_id}")
+        response, status_code = self._request("GET", f"/artists/{artist_id}")
+        if request_ctx:
+            request_ctx.set_endpoint(f"/artists/{artist_id}")
+            request_ctx.set_http_status(status_code)
+        return response
 
     def get_artists(self, artist_ids: List[str]) -> Dict[str, Any]:
         """Raw: GET /artists?ids=... (max 50)"""
@@ -156,11 +162,17 @@ class SpotifyAPI:
             return {"artists": []}
         if len(artist_ids) > 50:
             raise SpotifyAPIError("Spotify get_artists supports up to 50 ids per call.")
-        return self._request("GET", "/artists", params={"ids": ",".join(artist_ids)})
+        response, _ = self._request("GET", "/artists", params={"ids": ",".join(artist_ids)})
+        return response
 
-    def get_artist_top_tracks(self, artist_id: str, market: str = "FR") -> Dict[str, Any]:
+    def get_artist_top_tracks(self, artist_id: str, market: str = "FR", request_ctx: Optional[RequestContext] = None) -> Dict[str, Any]:
         """Raw: GET /artists/{id}/top-tracks (market required)"""
-        return self._request("GET", f"/artists/{artist_id}/top-tracks", params={"market": market})
+        response, status_code = self._request("GET", f"/artists/{artist_id}/top-tracks", params={"market": market})
+        if request_ctx:
+            request_ctx.set_endpoint(f"/artists/{artist_id}/top-tracks")
+            request_ctx.set_params({"market": market})
+            request_ctx.set_http_status(status_code)
+        return response
 
     def get_artist_albums(
         self,
@@ -178,19 +190,23 @@ class SpotifyAPI:
         }
         if market:
             params["market"] = market
-        return self._request("GET", f"/artists/{artist_id}/albums", params=params)
+        response, _ = self._request("GET", f"/artists/{artist_id}/albums", params=params)
+        return response
 
     def get_album(self, album_id: str) -> Dict[str, Any]:
         """Raw: GET /albums/{id}"""
-        return self._request("GET", f"/albums/{album_id}")
-
+        response, _ = self._request("GET", f"/albums/{album_id}")
+        return response
+    
     def get_track(self, track_id: str) -> Dict[str, Any]:
         """Raw: GET /tracks/{id}"""
-        return self._request("GET", f"/tracks/{track_id}")
+        response, _ = self._request("GET", f"/tracks/{track_id}")
+        return response
 
     def search_artist(self, query: str, limit: int = 10, market: Optional[str] = "FR") -> Dict[str, Any]:
         """Raw: GET /search?q=...&type=artist"""
         params: Dict[str, Any] = {"q": query, "type": "artist", "limit": limit}
         if market:
             params["market"] = market
-        return self._request("GET", "/search", params=params)
+        response, _ = self._request("GET", "/search", params=params)
+        return response

@@ -3,8 +3,10 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 from urllib.parse import quote
+
+from src.provenance.fine_grain_provenance import RequestContext
 
 import requests
 
@@ -51,7 +53,7 @@ class WikipediaAPI:
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": self.config.user_agent})
 
-    def _request(self, method: str, url: str) -> Dict[str, Any]:
+    def _request(self, method: str, url: str) -> Tuple[Dict[str, Any], int]:
         last_err: Optional[str] = None
         for attempt in range(self.config.max_retries + 1):
             resp = self._session.request(method, url, timeout=self.config.timeout_s)
@@ -73,7 +75,7 @@ class WikipediaAPI:
             if 200 <= resp.status_code < 300:
                 if not resp.text.strip():
                     return {}
-                return resp.json()
+                return resp.json(), resp.status_code
 
             raise WikipediaAPIError(f"Wikipedia API error {resp.status_code}: {resp.text}")
 
@@ -92,6 +94,7 @@ class WikipediaAPI:
         project: str = "en.wikipedia",
         access: str = "all-access",
         agent: str = "user",        # e.g. "user", "spider", "bot" (type of agent making the request)
+        request_ctx: Optional[RequestContext] = None,
     ) -> Dict[str, Any]:
         """
         Pageviews per-article endpoint.
@@ -113,8 +116,15 @@ class WikipediaAPI:
             f"{project}/{access}/{agent}/"
             f"{enc_title}/daily/{start}/{end}"
         )
-        return self._request("GET", url)
 
+        response, status_code = self._request("GET", url)
+    
+        if request_ctx:
+            request_ctx.set_endpoint(f"/metrics/pageviews/per-article/{project}/{access}/{agent}/{enc_title}/daily/{start}/{end}")
+            request_ctx.set_http_status(status_code)
+            
+        return response
+    
     def get_page_summary(self, *, title: str) -> Dict[str, Any]:
         """
         Raw: Wikipedia REST summary endpoint.
@@ -122,4 +132,5 @@ class WikipediaAPI:
         """
         enc_title = quote(title.replace(" ", "_"), safe="")
         url = f"{self.REST_BASE}/page/summary/{enc_title}"
-        return self._request("GET", url)
+        response, _ = self._request("GET", url)
+        return response

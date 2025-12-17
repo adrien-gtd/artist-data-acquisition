@@ -101,6 +101,8 @@ def normalize_spotify_daily(
     fetched_at: Optional[str] = None,
     job_run_id: Optional[str] = None,
     top_tracks_payload: Optional[Dict[str, Any]] = None,
+    artist_request_id: Optional[str] = None,
+    top_tracks_request_id: Optional[str] = None,
 ) -> SpotifyArtistDaily:
     """
     Normalize Spotify artist statistics into a daily snapshot.
@@ -128,6 +130,8 @@ def normalize_spotify_daily(
         day_date=day_date.isoformat(),
         fetched_at=fetched_at,
         job_run_id=job_run_id,
+        artist_request_id=artist_request_id,
+        top_tracks_request_id=top_tracks_request_id,
         followers_total=followers_total,
         popularity=popularity,
         top_track_popularity_max=top_max,

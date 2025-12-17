@@ -30,6 +30,7 @@ def normalize_youtube_daily(
     day_date: date,
     fetched_at: Optional[str] = None,
     job_run_id: Optional[str] = None,
+    request_id: Optional[str] = None,
 ) -> YouTubeArtistDaily:
     """
     Normalize a YouTube channel response into a daily snapshot.
@@ -49,6 +50,7 @@ def normalize_youtube_daily(
         day_date=day_date.isoformat(),
         fetched_at=fetched_at,
         job_run_id=job_run_id,
+        request_id=request_id,
         subscribers=_to_int(stats.get("subscriberCount")),
         total_views=_to_int(stats.get("viewCount")),
         video_count=_to_int(stats.get("videoCount")),

@@ -25,6 +25,8 @@ class SpotifyArtistDaily(BaseModel):
     # Provenance
     fetched_at: str = Field(..., description="UTC ISO timestamp")
     job_run_id: Optional[str] = Field(None, description="Pipeline execution id")
+    artist_request_id: Optional[str] = Field(None, description="Spotify artist API request id")
+    top_tracks_request_id: Optional[str] = Field(None, description="Spotify top-tracks API request id")
 
     # Metrics
     followers_total: Optional[int] = None
@@ -54,6 +56,7 @@ class WikiArtistDaily(BaseModel):
     # Provenance
     fetched_at: str = Field(..., description="UTC ISO timestamp")
     job_run_id: Optional[str] = Field(None, description="Pipeline execution id")
+    request_id: Optional[str] = Field(None, description="API request id")
 
     # Metrics
     pageviews: Optional[int] = Field(
@@ -75,6 +78,7 @@ class YouTubeArtistDaily(BaseModel):
     # Provenance
     fetched_at: str = Field(..., description="UTC ISO timestamp")
     job_run_id: Optional[str] = Field(None, description="Pipeline execution id")
+    request_id: Optional[str] = Field(None, description="API request id")
 
     # Metrics
     subscribers: Optional[int] = None

@@ -3,7 +3,9 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
+
+from src.provenance.fine_grain_provenance import RequestContext
 
 import requests
 
@@ -49,7 +51,7 @@ class YouTubeAPI:
         self._session = requests.Session()
         self._session.headers.update({"User-Agent": user_agent})
 
-    def _request(self, path: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _request(self, path: str, params: Dict[str, Any]) -> Tuple[Dict[str, Any], int]:
         url = f"{self.API_BASE}{path}"
         params = dict(params) # copy
         params["key"] = self.credentials.api_key
@@ -72,7 +74,7 @@ class YouTubeAPI:
             if 200 <= resp.status_code < 300:
                 if not resp.text.strip():
                     return {}
-                return resp.json()
+                return resp.json(), resp.status_code
 
             # try to surface JSON error details if present
             try:
@@ -84,12 +86,12 @@ class YouTubeAPI:
 
         raise YouTubeAPIError(f"YouTube API request failed after retries: {last_err or 'unknown'}")
 
-    def get_channel(self, channel_id: str) -> Dict[str, Any]:
+    def get_channel(self, channel_id: str, request_ctx: Optional[RequestContext] = None) -> Dict[str, Any]:
         """
         Raw: channels.list
         https://developers.google.com/youtube/v3/docs/channels/list
         """
-        return self._request(
+        response, status_code = self._request(
             "/channels",
             params={
                 "part": "snippet,statistics",
@@ -98,6 +100,18 @@ class YouTubeAPI:
             },
         )
 
+        if request_ctx:
+            request_ctx.set_endpoint(f"{self.API_BASE}/channels")
+            request_ctx.set_params({
+                "part": "snippet,statistics",
+                "id": channel_id,
+                "maxResults": 1,
+            })
+            request_ctx.set_http_status(status_code)
+
+        return response
+            
+
     def search_channel(self, query: str, max_results: int = 5) -> Dict[str, Any]:
         """
         Raw: search.list for channels
@@ -105,7 +119,7 @@ class YouTubeAPI:
 
         Used to find channel IDs by name for initial lookups.
         """
-        return self._request(
+        response, _ = self._request(
             "/search",
             params={
                 "part": "snippet",
@@ -114,3 +128,4 @@ class YouTubeAPI:
                 "maxResults": max_results,
             },
         )
+        return response

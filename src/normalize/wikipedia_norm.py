@@ -23,6 +23,7 @@ def normalize_wiki_daily(
     day_date: date,
     fetched_at: Optional[str] = None,
     job_run_id: Optional[str] = None,
+    request_id: Optional[str] = None,
 ) -> WikiArtistDaily:
     """
     Normalize a Wikimedia Pageviews response into a daily Wikipedia snapshot.
@@ -42,6 +43,7 @@ def normalize_wiki_daily(
         day_date=day_date.isoformat(),
         fetched_at=fetched_at,
         job_run_id=job_run_id,
+        request_id=request_id,
         pageviews=pageviews,
     )
 
