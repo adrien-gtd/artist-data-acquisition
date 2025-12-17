@@ -32,8 +32,6 @@ class SpotiflySpider(scrapy.Spider):
         }
         self.visited_artists.add(spotify_link)
         self.counter += 1
-        print(self.counter)
-        print(self.max_artists)
         if self.counter >= self.max_artists:
             raise CloseSpider(reason='Max artists reached')
 

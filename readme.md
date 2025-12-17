@@ -109,3 +109,17 @@ python src/cli.py run-weekly
 - The cli.py file runs the complete extraction and normalization workflow.  
 
 This structure keeps the pipeline modular and easy to extend when adding new APIs or data sources.
+
+## Miscelaneous
+
+### Changing the tracked artists config
+
+Our tracked_artists config file is obtained by scraping from a single spotify url
+according to spotify's recomended artists (fans also liked:).
+
+run the following
+
+'''
+cd spotifly
+./scrap_artists.sh
+'''
