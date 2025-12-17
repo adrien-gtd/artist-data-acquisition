@@ -1,11 +1,11 @@
 [
-{"artist_name": "The Weeknd", "artist_id": "1Xyo4u8uXC1ZmMpatF05PJ"},
-{"artist_name": "Bruno Mars", "artist_id": "0du5cEVh5yTK9QJze8zA0C"},
-{"artist_name": "Lily-Rose Depp", "artist_id": "1pBLC0qVRTB5zVMuteQ9jJ"},
-{"artist_name": "SZA", "artist_id": "7tYKF4w9nC0nq9CsPZTHyP"},
-{"artist_name": "Kendrick Lamar", "artist_id": "2YZyLoL8N0Wb9xBt1NhZWg"},
-{"artist_name": "Swae Lee", "artist_id": "1zNqQNIdeOUZHb8zbZRFMX"},
-{"artist_name": "Rihanna", "artist_id": "5pKCCKE2ajJHZ9KAiaK11H"},
-{"artist_name": "Gesaffelstein", "artist_id": "3hteYQFiMFbJY7wS0xDymP"},
-{"artist_name": "Doja Cat", "artist_id": "5cj0lLjcoR7YOSnhnX0Po5"}
+{"artist_name": "The Weeknd", "artist_id": "1Xyo4u8uXC1ZmMpatF05PJ", "monthly_listeners": 120143427},
+{"artist_name": "Bruno Mars", "artist_id": "0du5cEVh5yTK9QJze8zA0C", "monthly_listeners": 114439497},
+{"artist_name": "Lily-Rose Depp", "artist_id": "1pBLC0qVRTB5zVMuteQ9jJ", "monthly_listeners": 28505807},
+{"artist_name": "SZA", "artist_id": "7tYKF4w9nC0nq9CsPZTHyP", "monthly_listeners": 68436668},
+{"artist_name": "Kendrick Lamar", "artist_id": "2YZyLoL8N0Wb9xBt1NhZWg", "monthly_listeners": 72497334},
+{"artist_name": "Swae Lee", "artist_id": "1zNqQNIdeOUZHb8zbZRFMX", "monthly_listeners": 33968633},
+{"artist_name": "Rihanna", "artist_id": "5pKCCKE2ajJHZ9KAiaK11H", "monthly_listeners": 99486171},
+{"artist_name": "Gesaffelstein", "artist_id": "3hteYQFiMFbJY7wS0xDymP", "monthly_listeners": 15147279},
+{"artist_name": "Doja Cat", "artist_id": "5cj0lLjcoR7YOSnhnX0Po5", "monthly_listeners": 57265478}
 ]

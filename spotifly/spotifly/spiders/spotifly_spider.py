@@ -28,12 +28,15 @@ class SpotiflySpider(scrapy.Spider):
         artist_name = response.css("title::text").re(r"(.+) \| *")[0]
         spotify_link = response.url
         artist_id = spotify_link.replace("https://open.spotify.com/artist/","")
+        monthly_listeners = int(response.xpath("//div/text()[contains(., 'monthly listeners')]").re('(.*) monthly listeners')[0].replace(",",""))
 
         assert spotify_link not in self.visited_artists
-        yield {
+        if monthly_listeners >= self.min_artist_listeners:
+            yield {
             'artist_name': artist_name,
-            'artist_id': artist_id 
-        }
+            'artist_id': artist_id,
+            'monthly_listeners': monthly_listeners
+            }
         self.visited_artists.add(spotify_link)
         self.counter += 1
         if self.counter >= self.max_artists:
