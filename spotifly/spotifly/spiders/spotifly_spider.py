@@ -21,9 +21,12 @@ class SpotiflySpider(scrapy.Spider):
         self.counter = 0
         self.max_artists = int(kwargs.get('max_artists', 2))
         self.min_artist_listeners = int(kwargs.get('min_artist_listeners', 0))
+        self.max_artist_listeners = int(kwargs.get('max_artist_listeners', 10000000000))
+
         print(f"Max artists to scrape: {self.max_artists}")
         print(f"Min artist listeners: {self.min_artist_listeners}")
-    
+        print(f"Max artist listeners: {self.max_artist_listeners}")
+
     def parse(self, response):
         artist_name = response.css("title::text").re(r"(.+) \| *")[0]
         spotify_link = response.url
@@ -31,7 +34,7 @@ class SpotiflySpider(scrapy.Spider):
         monthly_listeners = int(response.xpath("//div/text()[contains(., 'monthly listeners')]").re('(.*) monthly listeners')[0].replace(",",""))
 
         assert spotify_link not in self.visited_artists
-        if monthly_listeners >= self.min_artist_listeners:
+        if monthly_listeners >= self.min_artist_listeners and monthly_listeners <= self.max_artist_listeners:
             yield {
             'artist_name': artist_name,
             'artist_id': artist_id,
