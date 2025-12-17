@@ -34,28 +34,30 @@ class SpotiflySpider(scrapy.Spider):
         monthly_listeners = int(response.xpath("//div/text()[contains(., 'monthly listeners')]").re('(.*) monthly listeners')[0].replace(",",""))
 
         assert spotify_link not in self.visited_artists
-        if monthly_listeners >= self.min_artist_listeners and monthly_listeners <= self.max_artist_listeners:
-            yield {
-            'artist_name': artist_name,
-            'artist_id': artist_id,
-            'monthly_listeners': monthly_listeners
-            }
         self.visited_artists.add(spotify_link)
-        self.counter += 1
         if self.counter >= self.max_artists:
             raise CloseSpider(reason='Max artists reached')
+        else:
+            if monthly_listeners >= self.min_artist_listeners and monthly_listeners <= self.max_artist_listeners:
+                yield {
+                'artist_name': artist_name,
+                'artist_id': artist_id,
+                'monthly_listeners': monthly_listeners
+                }
+                self.counter += 1
 
-        artist_links = response.xpath("//div/h2[text()='Fans also like']/parent::div/following-sibling::div/child::div/child::a/@href").getall()
-        #artist_names = response.xpath("//div/h2[text()='Fans also like']/parent::div/following-sibling::div/child::div/child::a/child::span/text()").getall() 
-        #artists_entries = zip(artist_names, artist_links)
 
-        for artist_url in artist_links:
-            artist_url = response.urljoin(artist_url)
-            if artist_url not in self.visited_artists:
-                yield scrapy.Request(
-                    artist_url,
-                    callback=self.parse
-                )
+            artist_links = response.xpath("//div/h2[text()='Fans also like']/parent::div/following-sibling::div/child::div/child::a/@href").getall()
+            #artist_names = response.xpath("//div/h2[text()='Fans also like']/parent::div/following-sibling::div/child::div/child::a/child::span/text()").getall() 
+            #artists_entries = zip(artist_names, artist_links)
+
+            for artist_url in artist_links:
+                artist_url = response.urljoin(artist_url)
+                if artist_url not in self.visited_artists:
+                    yield scrapy.Request(
+                        artist_url,
+                        callback=self.parse
+                    )
 
         #soup = bs4.BeautifulSoup(response.text, 'html.parser')
         #Path(filename).write_text(soup.prettify())
