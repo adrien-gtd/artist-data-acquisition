@@ -121,5 +121,5 @@ run the following
 
 '''
 cd spotifly
-./scrap_artists.sh
+./scrap_artists.sh [num_artists_to_scrape] [minimum_number_of_listeners]
 '''

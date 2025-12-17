@@ -19,16 +19,20 @@ class SpotiflySpider(scrapy.Spider):
         super(SpotiflySpider, self).__init__(*args, **kwargs)
         self.visited_artists = set()
         self.counter = 0
-        self.max_artists = 2
+        self.max_artists = int(kwargs.get('max_artists', 2))
+        self.min_artist_listeners = int(kwargs.get('min_artist_listeners', 0))
+        print(f"Max artists to scrape: {self.max_artists}")
+        print(f"Min artist listeners: {self.min_artist_listeners}")
     
     def parse(self, response):
         artist_name = response.css("title::text").re(r"(.+) \| *")[0]
         spotify_link = response.url
+        artist_id = spotify_link.replace("https://open.spotify.com/artist/","")
 
         assert spotify_link not in self.visited_artists
         yield {
             'artist_name': artist_name,
-            'spotify_link': spotify_link
+            'artist_id': artist_id 
         }
         self.visited_artists.add(spotify_link)
         self.counter += 1

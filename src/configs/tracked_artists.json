@@ -1,11 +1,11 @@
 [
-{"artist_name": "The Weeknd", "spotify_link": "https://open.spotify.com/artist/1Xyo4u8uXC1ZmMpatF05PJ"},
-{"artist_name": "Bruno Mars", "spotify_link": "https://open.spotify.com/artist/0du5cEVh5yTK9QJze8zA0C"},
-{"artist_name": "Lily-Rose Depp", "spotify_link": "https://open.spotify.com/artist/1pBLC0qVRTB5zVMuteQ9jJ"},
-{"artist_name": "SZA", "spotify_link": "https://open.spotify.com/artist/7tYKF4w9nC0nq9CsPZTHyP"},
-{"artist_name": "Kendrick Lamar", "spotify_link": "https://open.spotify.com/artist/2YZyLoL8N0Wb9xBt1NhZWg"},
-{"artist_name": "Swae Lee", "spotify_link": "https://open.spotify.com/artist/1zNqQNIdeOUZHb8zbZRFMX"},
-{"artist_name": "Rihanna", "spotify_link": "https://open.spotify.com/artist/5pKCCKE2ajJHZ9KAiaK11H"},
-{"artist_name": "Gesaffelstein", "spotify_link": "https://open.spotify.com/artist/3hteYQFiMFbJY7wS0xDymP"},
-{"artist_name": "Doja Cat", "spotify_link": "https://open.spotify.com/artist/5cj0lLjcoR7YOSnhnX0Po5"}
+{"artist_name": "The Weeknd", "artist_id": "1Xyo4u8uXC1ZmMpatF05PJ"},
+{"artist_name": "Bruno Mars", "artist_id": "0du5cEVh5yTK9QJze8zA0C"},
+{"artist_name": "Lily-Rose Depp", "artist_id": "1pBLC0qVRTB5zVMuteQ9jJ"},
+{"artist_name": "SZA", "artist_id": "7tYKF4w9nC0nq9CsPZTHyP"},
+{"artist_name": "Kendrick Lamar", "artist_id": "2YZyLoL8N0Wb9xBt1NhZWg"},
+{"artist_name": "Swae Lee", "artist_id": "1zNqQNIdeOUZHb8zbZRFMX"},
+{"artist_name": "Rihanna", "artist_id": "5pKCCKE2ajJHZ9KAiaK11H"},
+{"artist_name": "Gesaffelstein", "artist_id": "3hteYQFiMFbJY7wS0xDymP"},
+{"artist_name": "Doja Cat", "artist_id": "5cj0lLjcoR7YOSnhnX0Po5"}
 ]
