@@ -28,12 +28,12 @@ ARTIST_JSON_PATH = os.path.join("src", "configs", "tracked_artists.json")
 
 def get_wiki_title(artist: Dict[str, str], wiki_api: WikipediaAPI) -> str:
     local_artist_id = artist["local_artist_id"]
-    wiki_title = wiki_api.search_page_title(local_artist_id, limit=1)
+    wiki_title = wiki_api.search_page_title(local_artist_id, limit=2)
     return wiki_title
 
 def get_youtube_channel_id(artist: Dict[str, str], youtube_api: YouTubeAPI) -> str:
     local_artist_id = artist["local_artist_id"]
-    youtube_channel_id = youtube_api.search_channel(local_artist_id, max_results=1)
+    youtube_channel_id = youtube_api.search_channel(local_artist_id, max_results=2)
     return youtube_channel_id
 
 def join_artist_info(
