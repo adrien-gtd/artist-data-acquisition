@@ -196,15 +196,18 @@ def upsert_artist_daily(conn: sqlite3.Connection, row: RowLike) -> None:
     d = _to_dict(row)
     conn.execute(
         """
-        INSERT INTO artist_daily (
-            local_artist_id, day_date, job_run_id,
+        INSERT INTO artist_day (
+            local_artist_id, day_date,
+            job_run_spotify, job_run_wiki, job_run_youtube,
             spotify_followers_total, spotify_popularity, spotify_top_track_popularity_mean,
             wiki_pageviews,
             youtube_subscribers, youtube_total_views
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(local_artist_id, day_date) DO UPDATE SET
-            job_run_id = excluded.job_run_id,
+            job_run_spotify = excluded.job_run_spotify,
+            job_run_wiki = excluded.job_run_wiki,
+            job_run_youtube = excluded.job_run_youtube,
             spotify_followers_total = excluded.spotify_followers_total,
             spotify_popularity = excluded.spotify_popularity,
             spotify_top_track_popularity_mean = excluded.spotify_top_track_popularity_mean,
@@ -216,7 +219,9 @@ def upsert_artist_daily(conn: sqlite3.Connection, row: RowLike) -> None:
         (
             d.get("local_artist_id"),
             d.get("day_date"),
-            d.get("job_run_id"),
+            d.get("job_run_spotify"),
+            d.get("job_run_wiki"),
+            d.get("job_run_youtube"),
             d.get("spotify_followers_total"),
             d.get("spotify_popularity"),
             d.get("spotify_top_track_popularity_mean"),
@@ -384,3 +389,70 @@ def upsert_api_request(
     conn.commit()
 
 
+def merge_daily_data(artist_list: List[Dict[str, str]], conn: sqlite3.Connection, day_str: str) -> None:
+    """
+    Map-Reduce merge: For each (local_artist_id, day_date) pair, consolidate the latest
+    data from Spotify, Wikipedia, and YouTube sources into the artist_day table.
+    
+    MAP: Extract (local_artist_id, day_date) pairs from each daily source table
+    SHUFFLE: Group by (local_artist_id, day_date)
+    REDUCE: Keep the latest fetch of each source
+    """
+    for artist in artist_list:
+        local_artist_id = artist["local_artist_id"]
+        
+        # Query the latest fetch from each source for this artist and day
+        cursor = conn.cursor()
+        
+        # Get latest Spotify data
+        spotify_row = cursor.execute(
+            """
+            SELECT job_run_id, followers_total, popularity, top_track_popularity_mean
+            FROM spotify_artist_daily
+            WHERE local_artist_id = ? AND day_date = ?
+            ORDER BY fetched_at DESC
+            LIMIT 1
+            """,
+            (local_artist_id, day_str),
+        ).fetchone()
+        
+        # Get latest Wikipedia data
+        wiki_row = cursor.execute(
+            """
+            SELECT job_run_id, pageviews
+            FROM wiki_artist_daily
+            WHERE local_artist_id = ? AND day_date = ?
+            ORDER BY fetched_at DESC
+            LIMIT 1
+            """,
+            (local_artist_id, day_str),
+        ).fetchone()
+        
+        # Get latest YouTube data
+        youtube_row = cursor.execute(
+            """
+            SELECT job_run_id, subscribers, total_views
+            FROM youtube_artist_daily
+            WHERE local_artist_id = ? AND day_date = ?
+            ORDER BY fetched_at DESC
+            LIMIT 1
+            """,
+            (local_artist_id, day_str),
+        ).fetchone()
+        
+        # Only merge if we have at least one source
+        if spotify_row or wiki_row or youtube_row:
+            merged_data = {
+                "local_artist_id": local_artist_id,
+                "day_date": day_str,
+                "job_run_spotify": spotify_row[0] if spotify_row else None,
+                "job_run_wiki": wiki_row[0] if wiki_row else None,
+                "job_run_youtube": youtube_row[0] if youtube_row else None,
+                "spotify_followers_total": spotify_row[1] if spotify_row else None,
+                "spotify_popularity": spotify_row[2] if spotify_row else None,
+                "spotify_top_track_popularity_mean": spotify_row[3] if spotify_row else None,
+                "wiki_pageviews": wiki_row[1] if wiki_row else None,
+                "youtube_subscribers": youtube_row[1] if youtube_row else None,
+                "youtube_total_views": youtube_row[2] if youtube_row else None,
+            }
+            upsert_artist_daily(conn, merged_data)
