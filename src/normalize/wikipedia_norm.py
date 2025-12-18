@@ -54,6 +54,7 @@ def normalize_wiki_info_from_summary(
     local_artist_id: str,
     fetched_at: Optional[str] = None,
     job_run_id: Optional[str] = None,
+    request_id: Optional[str] = None,
 ) -> ArtistInfo:
     """
     Normalize Wikipedia REST summary metadata into ArtistInfo fields.
@@ -71,6 +72,7 @@ def normalize_wiki_info_from_summary(
         local_artist_id=local_artist_id,
         wiki_title=raw_summary.get("title"),
         wikipedia_url=wikipedia_url,
-        fetched_at=fetched_at,
-        job_run_id=job_run_id,
+        wikipedia_fetched_at=fetched_at,
+        wikipedia_job_run_id=job_run_id,
+        wikipedia_request_id=request_id,
     )

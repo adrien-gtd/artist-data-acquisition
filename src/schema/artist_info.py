@@ -23,8 +23,6 @@ class ArtistInfo(BaseModel):
     youtube_channel_id: Optional[str] = None
 
     # Metadata
-    country: Optional[str] = None
-    debut_year: Optional[int] = None
     genres: List[str] = Field(default_factory=list)
     image_url: Optional[str] = None
     spotify_url: Optional[str] = None
@@ -32,6 +30,12 @@ class ArtistInfo(BaseModel):
     youtube_channel_url: Optional[str] = None
 
     # Provenance
-    fetched_at: Optional[str] = Field(None, description="UTC ISO timestamp when last refreshed")
-    job_run_id: Optional[str] = Field(None, description="Pipeline execution id")
-
+    spotify_fetched_at: Optional[str] = None
+    spotify_job_run_id: Optional[str] = None
+    spotify_request_id: Optional[str] = None
+    wikipedia_fetched_at: Optional[str] = None
+    wikipedia_job_run_id: Optional[str] = None
+    wikipedia_request_id: Optional[str] = None
+    youtube_fetched_at: Optional[str] = None
+    youtube_job_run_id: Optional[str] = None
+    youtube_request_id: Optional[str] = None

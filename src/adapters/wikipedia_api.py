@@ -125,14 +125,19 @@ class WikipediaAPI:
             
         return response
     
-    def get_page_summary(self, *, title: str) -> Dict[str, Any]:
+    def get_page_summary(self, *, title: str, request_ctx: Optional[RequestContext] = None) -> Dict[str, Any]:
         """
         Raw: Wikipedia REST summary endpoint.
         Handy for verifying title/redirects and getting canonical page URL.
         """
         enc_title = quote(title.replace(" ", "_"), safe="")
         url = f"{self.REST_BASE}/page/summary/{enc_title}"
-        response, _ = self._request("GET", url)
+        response, status_code = self._request("GET", url)
+        
+        if request_ctx:
+            request_ctx.set_endpoint(f"/page/summary/{enc_title}")
+            request_ctx.set_http_status(status_code)
+            
         return response
 
     def search_page_title(self, query: str, limit: int = 1) -> str:

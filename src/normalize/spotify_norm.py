@@ -72,6 +72,7 @@ def normalize_artist_info(
     local_artist_id: str,
     fetched_at: Optional[str] = None,
     job_run_id: Optional[str] = None,
+    request_id: Optional[str] = None,
 ) -> ArtistInfo:
     """
     Normalize a Spotify artist object into an ArtistInfo record.
@@ -88,8 +89,9 @@ def normalize_artist_info(
         genres=raw_artist.get("genres") or [],
         image_url=_pick_best_image_url(raw_artist.get("images")),
         spotify_url=(raw_artist.get("external_urls") or {}).get("spotify"),
-        fetched_at=fetched_at,
-        job_run_id=job_run_id,
+        spotify_fetched_at=fetched_at,
+        spotify_job_run_id=job_run_id,
+        spotify_request_id=request_id,
     )
 
 def normalize_spotify_daily(

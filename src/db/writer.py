@@ -19,6 +19,9 @@ def _to_dict(obj: RowLike) -> Dict[str, Any]:
     if is_dataclass(obj):
         from dataclasses import asdict
         return asdict(obj)
+
+    if hasattr(obj, "dict") and callable(getattr(obj, "dict")): # Pydantic v1
+        return obj.dict()
     raise TypeError(f"Unsupported row type: {type(obj)}")
 
 
@@ -42,55 +45,58 @@ def upsert_artist_info(conn: sqlite3.Connection, artist_info) -> None:
     conn.execute(
         """
         INSERT INTO artist_info (
-            local_artist_id, artist_name,
-            spotify_artist_id, wiki_title, youtube_channel_id,
-            country, debut_year,
-            genres_json, image_url,
-            spotify_url, wikipedia_url, youtube_channel_url,
-            fetched_at, job_run_id
+            local_artist_id, artist_name, 
+            spotify_artist_id, wiki_title, youtube_channel_id, 
+
+            genres_json, image_url, spotify_url,
+            wikipedia_url, youtube_channel_url,
+
+            spotify_fetched_at, spotify_job_run_id, spotify_request_id,
+            wikipedia_fetched_at, wikipedia_job_run_id, wikipedia_request_id,
+            youtube_fetched_at, youtube_job_run_id, youtube_request_id
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(local_artist_id) DO UPDATE SET
             artist_name = excluded.artist_name,
-
-            spotify_artist_id = COALESCE(excluded.spotify_artist_id, artist_info.spotify_artist_id),
-            wiki_title = COALESCE(excluded.wiki_title, artist_info.wiki_title),
-            youtube_channel_id = COALESCE(excluded.youtube_channel_id, artist_info.youtube_channel_id),
-
-            country = COALESCE(excluded.country, artist_info.country),
-            debut_year = COALESCE(excluded.debut_year, artist_info.debut_year),
-
-            genres_json = COALESCE(excluded.genres_json, artist_info.genres_json),
-            image_url = COALESCE(excluded.image_url, artist_info.image_url),
-
-            spotify_url = COALESCE(excluded.spotify_url, artist_info.spotify_url),
-            wikipedia_url = COALESCE(excluded.wikipedia_url, artist_info.wikipedia_url),
-            youtube_channel_url = COALESCE(excluded.youtube_channel_url, artist_info.youtube_channel_url),
-
-            fetched_at = COALESCE(excluded.fetched_at, artist_info.fetched_at),
-            job_run_id = COALESCE(excluded.job_run_id, artist_info.job_run_id)
+            spotify_artist_id = excluded.spotify_artist_id,
+            wiki_title = excluded.wiki_title,
+            youtube_channel_id = excluded.youtube_channel_id,
+            genres_json = excluded.genres_json,
+            image_url = excluded.image_url,
+            spotify_url = excluded.spotify_url,
+            wikipedia_url = excluded.wikipedia_url,
+            youtube_channel_url = excluded.youtube_channel_url,
+            spotify_fetched_at = excluded.spotify_fetched_at,
+            spotify_job_run_id = excluded.spotify_job_run_id,
+            spotify_request_id = excluded.spotify_request_id,
+            wikipedia_fetched_at = excluded.wikipedia_fetched_at,
+            wikipedia_job_run_id = excluded.wikipedia_job_run_id,
+            wikipedia_request_id = excluded.wikipedia_request_id,
+            youtube_fetched_at = excluded.youtube_fetched_at,
+            youtube_job_run_id = excluded.youtube_job_run_id,
+            youtube_request_id = excluded.youtube_request_id
         ;
-        """,
+        """ ,
         (
             d.get("local_artist_id"),
             d.get("artist_name"),
-
             d.get("spotify_artist_id"),
             d.get("wiki_title"),
             d.get("youtube_channel_id"),
-
-            d.get("country"),
-            d.get("debut_year"),
-
             genres_json,
             d.get("image_url"),
-
             d.get("spotify_url"),
             d.get("wikipedia_url"),
             d.get("youtube_channel_url"),
-
-            d.get("fetched_at"),
-            d.get("job_run_id"),
+            d.get("spotify_fetched_at"),
+            d.get("spotify_job_run_id"),
+            d.get("spotify_request_id"),
+            d.get("wikipedia_fetched_at"),
+            d.get("wikipedia_job_run_id"),
+            d.get("wikipedia_request_id"),
+            d.get("youtube_fetched_at"),
+            d.get("youtube_job_run_id"),
+            d.get("youtube_request_id")
         ),
     )
     conn.commit()
@@ -456,3 +462,17 @@ def merge_daily_data(artist_list: List[Dict[str, str]], conn: sqlite3.Connection
                 "youtube_total_views": youtube_row[2] if youtube_row else None,
             }
             upsert_artist_daily(conn, merged_data)
+
+
+def select_tracked_artists(conn: sqlite3.Connection) -> List[Dict[str, str]]:
+    cursor = conn.cursor()
+    rows = cursor.execute(
+        """
+        SELECT local_artist_id, wiki_title
+        FROM artist_info
+        WHERE wiki_title IS NOT NULL
+        ;
+        """
+    ).fetchall()
+    artist_list = [{"local_artist_id": row["local_artist_id"], "wiki_title": row["wiki_title"]} for row in rows]
+    return artist_list

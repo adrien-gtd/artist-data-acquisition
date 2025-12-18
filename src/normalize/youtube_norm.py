@@ -63,6 +63,7 @@ def normalize_youtube_info_from_channel(
     local_artist_id: str,
     fetched_at: Optional[str] = None,
     job_run_id: Optional[str] = None,
+    request_id: Optional[str] = None,
 ) -> ArtistInfo:
     """
     Normalize YouTube channel metadata into ArtistInfo fields.
@@ -85,6 +86,7 @@ def normalize_youtube_info_from_channel(
         local_artist_id=local_artist_id,
         youtube_channel_id=channel_id,
         youtube_channel_url=youtube_channel_url,
-        fetched_at=fetched_at,
-        job_run_id=job_run_id,
+        youtube_fetched_at=fetched_at,
+        youtube_job_run_id=job_run_id,
+        youtube_request_id=request_id,
     )

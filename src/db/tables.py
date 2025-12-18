@@ -10,17 +10,30 @@ CREATE TABLE IF NOT EXISTS artist_info (
   wiki_title TEXT,
   youtube_channel_id TEXT,
 
-  country TEXT,
-  debut_year INTEGER,
-
   genres_json TEXT,
   image_url TEXT,
   spotify_url TEXT,
   wikipedia_url TEXT,
   youtube_channel_url TEXT,
+  
+  --- Provenance
+  spotify_fetched_at TEXT NOT NULL,
+  spotify_job_run_id TEXT NOT NULL,
+  spotify_request_id TEXT NOT NULL,
+  wikipedia_fetched_at TEXT NOT NULL,
+  wikipedia_job_run_id TEXT NOT NULL,
+  wikipedia_request_id TEXT NOT NULL,
+  youtube_fetched_at TEXT NOT NULL,
+  youtube_job_run_id TEXT NOT NULL,
+  youtube_request_id TEXT NOT NULL,
 
-  fetched_at TEXT,
-  job_run_id TEXT
+
+  FOREIGN KEY (spotify_job_run_id) REFERENCES pipeline_run(run_id),
+  FOREIGN KEY (wikipedia_job_run_id) REFERENCES pipeline_run(run_id),
+  FOREIGN KEY (youtube_job_run_id) REFERENCES pipeline_run(run_id),
+  FOREIGN KEY (spotify_request_id) REFERENCES api_request(request_id),
+  FOREIGN KEY (wikipedia_request_id) REFERENCES api_request(request_id),
+  FOREIGN KEY (youtube_request_id) REFERENCES api_request(request_id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_artist_info_spotify
@@ -190,7 +203,7 @@ DDL_REQUEST_TRACE = """
 CREATE TABLE IF NOT EXISTS api_request (
   request_id TEXT PRIMARY KEY,
   run_id TEXT NOT NULL,
-  step_run_id TEXT NOT NULL,
+  step_run_id TEXT,
 
   source TEXT NOT NULL,              -- 'spotify'|'wikipedia'|'youtube'
   local_artist_id TEXT,
