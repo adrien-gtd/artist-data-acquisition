@@ -17,7 +17,7 @@ from src.normalize.wikipedia_norm import normalize_wiki_daily
 from src.normalize.youtube_norm import normalize_youtube_daily
 
 # Import the database adapter
-from src.db.writer import upsert_artist_daily, upsert_spotify_daily, upsert_wiki_daily, upsert_youtube_daily
+from src.db.writer import merge_daily_data, upsert_spotify_daily, upsert_wiki_daily, upsert_youtube_daily
 
 # Global variables
 DAY_DATE = (date.today() - timedelta(days=1)) # Use yesterday for complete daily stats
@@ -54,6 +54,7 @@ def daily_job(artist_list: List[Dict[str, str]], commit_hash: str, conn: Any) ->
         process_youtube_data(artist_list, job_run_id, conn)
 
         # Step 2: Apply the map reduce to aggregate the data
+        merge_daily_data(artist_list, conn, DAY_STR)
 
 def process_spotify_data(artist_list: List[Dict[str, str]], job_run_id: str, conn: Any) -> None:
     spotify = SpotifyAPI()
