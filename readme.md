@@ -12,9 +12,9 @@ It extracts raw data, normalizes it into a consistent structure, and stores it f
 │   └── artist_tracker.sqlite                   # The actual database
 ├── spotifly                                    # The scrapper
 │   ├── scrap_artists.sh                        # Script to automate scraping
-│   ├── spotifly
-│   │   └── spiders
-│   │       └── spotifly_spider.py              # Our main spider
+│   └── spotifly
+│       └── spiders
+│           └── spotifly_spider.py              # Our main spider
 └── src
     ├── adapters
     │  ├─ platform_x_api.py              # Fetches data from Platform X API
