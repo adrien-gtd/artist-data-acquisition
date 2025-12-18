@@ -45,6 +45,7 @@ def join_artist_info(
     """
     return ArtistInfo(
         local_artist_id=base.local_artist_id,
+        wiki_title=updates.wiki_title or base.wiki_title,
         wikipedia_url=updates.wikipedia_url or base.wikipedia_url,
         youtube_channel_id=updates.youtube_channel_id or base.youtube_channel_id,
         spotify_artist_id=updates.spotify_artist_id or base.spotify_artist_id,
