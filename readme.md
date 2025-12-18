@@ -4,39 +4,44 @@ This project collects and organizes data on music artists’ popularity from mul
 It extracts raw data, normalizes it into a consistent structure, and stores it for analysis or reporting.
 
 ---
-
 ## Project Structure
+
 ```
-src/
-├─ adapters/                         # API connectors
-│  ├─ platform_x_api.py              # Fetches data from Platform X API
-│  ├─ platform_y_api.py              # Fetches data from Platform Y API
-│  └─ ...                            # One file per platform
-│
-├─ db/                               # Data storage logic
-│  ├─ tables.py                      # Database table definitions
-│  └─ writer.py                      # Write data to files or databases
-│
-├─ normalize/                        # Data cleaning and standardization
-│  ├─ platform_x_norm.py             # Normalizes Platform X data
-│  ├─ platform_y_norm.py             # Normalizes Platform Y data
-│  └─ ...                            # One file per platform
-│
-├─ schema/                           # Data model definitions
-│  ├─ artist_info.py                 # Static artist information
-│  ├─ artist_kpi.py                  # Derived weekly KPIs
-│  └─ artist_weekly.py               # Weekly dynamic artist data
-│
-├─ cli.py                            # Entry point for running data collection
-│
-├─ configs/
-│  └─ tracked_artists.json           # List of tracked artists with local IDs and per-platform IDs
-│
-.env                                 # Local environment variables (API keys)
-.env.example                         # Template for .env
-.gitignore
-requirements.txt
+.
+├── data
+│   └── artist_tracker.sqlite                   # The actual database
+├── spotifly                                    # The scrapper
+│   ├── scrap_artists.sh                        # Script to automate scraping
+│   ├── spotifly
+│   │   └── spiders
+│   │       └── spotifly_spider.py              # Our main spider
+└── src
+    ├── adapters
+    │  ├─ platform_x_api.py              # Fetches data from Platform X API
+    │  ├─ platform_y_api.py              # Fetches data from Platform Y API
+    │  └── ...
+    ├── cli.py                           # Main data retrieving script
+    ├── configs
+    │   └── tracked_artists.json         # Artists that we track with api.py
+    ├── db
+    │   ├── tables.py                    # Structure of the database
+    │   └── writer.py                    # Functions to write to database
+    ├── normalize
+    │  ├─ platform_x_norm.py             # Normalizes Platform X data
+    │  ├─ platform_y_norm.py             # Normalizes Platform Y data
+    │  └─ ...                            # One file per platform
+    ├── provenance
+    │   ├── fine_grain_provenance.py     # Fine grained provenance functions
+    │   └── workflow_provenance.py       # Workflow provenance functions
+    ├── resolve_identities.py            # One-time artist meta-information retrieval script
+    ├── schema
+    │   ├── artist_daily.py              # Database structure for daily info
+    │   └── artist_info.py               # Database structure for artist meta-info
+    ├── scripts
+    │   └── ...                          # Testing scripts
+    └── utils.py
 ```
+
 
 - **adapters/** – Each file connects to one data source (Spotify, YouTube, etc.), handles authentication, and fetches raw data.  
 - **normalize/** – Each file transforms raw API responses into a consistent schema shared across all platforms.  
