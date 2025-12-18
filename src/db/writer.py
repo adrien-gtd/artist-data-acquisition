@@ -468,11 +468,12 @@ def select_tracked_artists(conn: sqlite3.Connection) -> List[Dict[str, str]]:
     cursor = conn.cursor()
     rows = cursor.execute(
         """
-        SELECT local_artist_id, wiki_title
+        SELECT local_artist_id, wiki_title,spotify_artist_id, youtube_channel_id
         FROM artist_info
         WHERE wiki_title IS NOT NULL
         ;
         """
     ).fetchall()
-    artist_list = [{"local_artist_id": row["local_artist_id"], "wiki_title": row["wiki_title"]} for row in rows]
+    artist_list = [{"local_artist_id": row["local_artist_id"], "spotify_artist_id": row["spotify_artist_id"],"wiki_title": row["wiki_title"],"youtube_channel_id": row["youtube_channel_id"]} for row in rows]
+
     return artist_list

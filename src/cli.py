@@ -30,7 +30,6 @@ from src.db.writer import merge_daily_data, upsert_spotify_daily, upsert_wiki_da
 DAY_DATE = (date.today() - timedelta(days=1)) # Use yesterday for complete daily stats
 DAY_ISO = DAY_DATE.isoformat()
 DAY_STR = DAY_DATE.strftime("%Y-%m-%d")
-
 def daily_job(artist_list: List[Dict[str, str]], commit_hash: str, conn: Any) -> None:
     """
     Function running the daily data acquisition, normalization, and storage job.
@@ -55,7 +54,7 @@ def daily_job(artist_list: List[Dict[str, str]], commit_hash: str, conn: Any) ->
         process_spotify_data(artist_list, job_run_id, conn)
 
         # Step 1.2: Fetch data from Wikipedia api
-        #process_wikipedia_data(artist_list, job_run_id, conn)
+        process_wikipedia_data(artist_list, job_run_id, conn)
 
         # Step 1.3: Fetch data from YouTube api
         process_youtube_data(artist_list, job_run_id, conn)
@@ -228,19 +227,13 @@ def process_youtube_data(artist_list: List[Dict[str, str]], job_run_id: str, con
                 print(f"Error processing YouTube data for artist {local_artist_id}: {e}")
 
 if __name__ == "__main__":
+    print("Starting daily data acquisition job...")
     parser = argparse.ArgumentParser(description="Run daily data acquisition job.")
-    parser.add_argument(
-        "--commit-hash",
-        type=str,
-        required=True,
-        help="Git commit hash for provenance tracking.",
-    )
     args = parser.parse_args()
-
     conn = connect_sqlite(os.getenv("SQLITE_DB_PATH", "artist_data.db"))
 
     # Fetch the list of artists to track from the database
     tracked_artists = select_tracked_artists(conn)
-
-
-    daily_job(tracked_artists, args.commit_hash, conn)
+    print(tracked_artists)
+    commit_hash = os.getenv("COMMIT_HASH", "unknown")
+    daily_job(tracked_artists, commit_hash, conn)
