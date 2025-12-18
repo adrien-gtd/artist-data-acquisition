@@ -90,14 +90,11 @@ YOUTUBE_API_KEY=your_youtube_api_key
 Run the CLI script to fetch and normalize data:
 
 ```
-python src/cli.py
+python -m src/cli
 ```
 
 Cli will also support commands (for example, weekly updates):
 
-```
-python src/cli.py --run-weekly
-```
 
 ---
 
