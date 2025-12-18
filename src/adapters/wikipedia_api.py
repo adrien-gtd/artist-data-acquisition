@@ -134,3 +134,21 @@ class WikipediaAPI:
         url = f"{self.REST_BASE}/page/summary/{enc_title}"
         response, _ = self._request("GET", url)
         return response
+
+    def search_page_title(self, query: str, limit: int = 1) -> str:
+        """
+        Uses the Action API to find the most relevant page title.
+        """
+        # Action API base URL
+        url = (
+            f"https://en.wikipedia.org/w/api.php?"
+            f"action=query&list=search&srsearch={quote(query)}&"
+            f"srlimit={limit}&format=json"
+        )
+        
+        response, _ = self._request("GET", url)
+        
+        if not response.get("query", {}).get("search"):
+            raise WikipediaAPIError(f"No results found for query: {query}")
+            
+        return response["query"]["search"][0]["title"]

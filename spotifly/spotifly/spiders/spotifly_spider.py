@@ -40,8 +40,8 @@ class SpotiflySpider(scrapy.Spider):
         else:
             if monthly_listeners >= self.min_artist_listeners and monthly_listeners <= self.max_artist_listeners:
                 yield {
-                'artist_name': artist_name,
-                'artist_id': artist_id,
+                'local_artist_id': artist_name,
+                'spotify_artist_id': artist_id,
                 'monthly_listeners': monthly_listeners
                 }
                 self.counter += 1

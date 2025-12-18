@@ -1,7 +1,6 @@
 from src.cli import daily_job
 import dotenv
-from src.db.writer import connect_sqlite
-from src.db.writer import upsert_artist_info
+from src.db.writer import upsert_artist_info, connect_sqlite
 
 if __name__ == "__main__":
     the_weeknd_config = [{

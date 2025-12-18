@@ -96,7 +96,7 @@ python src/cli.py
 Cli will also support commands (for example, weekly updates):
 
 ```
-python src/cli.py run-weekly
+python src/cli.py --run-weekly
 ```
 
 ---
@@ -119,7 +119,8 @@ according to spotify's recomended artists (fans also liked:).
 
 run the following
 
-'''
+
+```
 cd spotifly
-./scrap_artists.sh [num_artists_to_scrape] [minimum_number_of_listeners]
-'''
+./scrap_artists.sh <max_num_artists> <min_artist_listeners> <max_artist_listeners>
+```

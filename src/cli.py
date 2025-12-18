@@ -1,5 +1,11 @@
 from datetime import date, timedelta
 from typing import Dict, List, Any
+import argparse
+import json
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Import helpers
 from src.utils import utc_now_iso
@@ -17,7 +23,7 @@ from src.normalize.wikipedia_norm import normalize_wiki_daily
 from src.normalize.youtube_norm import normalize_youtube_daily
 
 # Import the database adapter
-from src.db.writer import merge_daily_data, upsert_spotify_daily, upsert_wiki_daily, upsert_youtube_daily
+from src.db.writer import merge_daily_data, upsert_spotify_daily, upsert_wiki_daily, upsert_youtube_daily, upsert_artist_info, connect_sqlite
 
 # Global variables
 DAY_DATE = (date.today() - timedelta(days=1)) # Use yesterday for complete daily stats
@@ -48,7 +54,7 @@ def daily_job(artist_list: List[Dict[str, str]], commit_hash: str, conn: Any) ->
         process_spotify_data(artist_list, job_run_id, conn)
 
         # Step 1.2: Fetch data from Wikipedia api
-        process_wikipedia_data(artist_list, job_run_id, conn)
+        #process_wikipedia_data(artist_list, job_run_id, conn)
 
         # Step 1.3: Fetch data from YouTube api
         process_youtube_data(artist_list, job_run_id, conn)
@@ -133,7 +139,7 @@ def process_wikipedia_data(artist_list: List[Dict[str, str]], job_run_id: str, c
         for artist in artist_list:
             try:
                 wiki_title = artist["wiki_title"]
-                local_artist_id = artist["local_artist_id"]
+                wiki_title = wikipedia.search_page_title(local_artist_id, max_results=1)
 
                 # Fetch raw data from Wikipedia API
                 with RequestContext(
@@ -174,6 +180,8 @@ def process_wikipedia_data(artist_list: List[Dict[str, str]], job_run_id: str, c
 def process_youtube_data(artist_list: List[Dict[str, str]], job_run_id: str, conn: Any) -> None:
     youtube = YouTubeAPI()
 
+
+
     # StepContext will create a run_step record in the database (workflow provenance)
     with StepContext(
         run_id=job_run_id,
@@ -186,7 +194,7 @@ def process_youtube_data(artist_list: List[Dict[str, str]], job_run_id: str, con
             try:
                 youtube_channel_id = artist["youtube_channel_id"]
                 local_artist_id = artist["local_artist_id"]
-
+                
                 # Fetch raw data from YouTube API
                 with RequestContext(
                     run_id=job_run_id,
@@ -217,3 +225,44 @@ def process_youtube_data(artist_list: List[Dict[str, str]], job_run_id: str, con
             except Exception as e:
                 step_ctx.error_count += 1
                 print(f"Error processing YouTube data for artist {local_artist_id}: {e}")
+
+
+def get_wiki_title(artist):
+    wikipedia = WikipediaAPI()
+    local_artist_id = artist["local_artist_id"]
+    wiki_title = wikipedia.search_page_title(local_artist_id, limit=1)
+    return wiki_title
+
+def get_youtube_channel_id(artist: Dict[str, str]) -> str:
+    youtube = YouTubeAPI()
+    local_artist_id = artist["local_artist_id"]
+    youtube_channel_id = youtube.search_channel(local_artist_id, max_results=1)
+    return youtube_channel_id
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run daily data acquisition job.")
+    parser.add_argument("--run-weekly", action="store_true", help="Run the weekly data acquisition job instead of the daily one.")
+    args = parser.parse_args()
+
+    if args.run_weekly:
+        print(f"Not implemented yet")
+        #TODO
+    else:
+
+        conn = connect_sqlite("data/artist_tracker.sqlite")
+#        with RunContext(run_day=DAY_STR, commit_hash=commit_hash, conn=conn) as run_ctx:
+
+        ##Retrieve artist info for everything
+        tracked_artists = json.load(open("src/configs/tracked_artists.json"))
+        for artist in tracked_artists:
+            ##These should already be in the database
+            assert "local_artist_id" in artist
+            assert "spotify_artist_id" in artist
+
+            artist["youtube_channel_id"] = get_youtube_channel_id(artist)
+            artist["wiki_title"] = get_wiki_title(artist)
+
+            upsert_artist_info(conn, artist)
+
+
+        daily_job(tracked_artists, "some_commit_hash", conn)

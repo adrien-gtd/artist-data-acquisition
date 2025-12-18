@@ -128,4 +128,4 @@ class YouTubeAPI:
                 "maxResults": max_results,
             },
         )
-        return response
+        return response["items"][0]["id"]["channelId"]
