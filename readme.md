@@ -92,15 +92,14 @@ YOUTUBE_API_KEY=your_youtube_api_key
 ```
 ### 5. Run the data collection
 
-Run the CLI script to fetch and normalize data:
-
+Start by running the initialization pipeline
 ```
-python -m src/cli
+python -m src.resolve_identities
 ```
-
-Cli will also support commands (for example, weekly updates):
-
-
+Then the daily gather job can be run using:
+```
+python -m src.cli
+```
 ---
 
 ## Summary
@@ -117,11 +116,9 @@ This structure keeps the pipeline modular and easy to extend when adding new API
 ### Changing the tracked artists config
 
 Our tracked_artists config file is obtained by scraping from a single spotify url
-according to spotify's recomended artists (fans also liked:).
+according to spotify's recomended artists (`fans also liked`).
 
-run the following
-
-
+To fetch a new artist list, you can run the scrapper by running the following:
 ```
 cd spotifly
 ./scrap_artists.sh <max_num_artists> <min_artist_listeners> <max_artist_listeners>
