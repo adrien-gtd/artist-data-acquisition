@@ -51,13 +51,14 @@ class SpotiflySpider(scrapy.Spider):
             #artist_names = response.xpath("//div/h2[text()='Fans also like']/parent::div/following-sibling::div/child::div/child::a/child::span/text()").getall() 
             #artists_entries = zip(artist_names, artist_links)
 
-            for artist_url in artist_links:
-                artist_url = response.urljoin(artist_url)
-                if artist_url not in self.visited_artists:
-                    yield scrapy.Request(
-                        artist_url,
-                        callback=self.parse
-                    )
+            for i,artist_url in enumerate(artist_links):
+                if self.counter + i < self.max_artists:
+                    artist_url = response.urljoin(artist_url)
+                    if artist_url not in self.visited_artists:
+                        yield scrapy.Request(
+                            artist_url,
+                            callback=self.parse
+                        )
 
         #soup = bs4.BeautifulSoup(response.text, 'html.parser')
         #Path(filename).write_text(soup.prettify())
