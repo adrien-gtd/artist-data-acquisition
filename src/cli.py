@@ -265,4 +265,4 @@ if __name__ == "__main__":
             upsert_artist_info(conn, artist)
 
 
-        daily_job(tracked_artists, "some_commit_hash", conn)
+        daily_job(tracked_artists, "4aa344208b0ca4492816ff52a54b396998fb6397", conn)
