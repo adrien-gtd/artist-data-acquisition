@@ -90,7 +90,17 @@ SPOTIFY_CLIENT_ID=your_spotify_client_id
 SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 YOUTUBE_API_KEY=your_youtube_api_key
 ```
-### 5. Run the data collection
+
+### 5. Setup the static data
+
+Run the static data setup script
+
+```
+python -m src/resolve_identities
+```
+This will fill the artist_info table that the daily runs will be based on.
+
+### 6. Run the data collection
 
 Run the CLI script to fetch and normalize data:
 
