@@ -12,9 +12,9 @@ It extracts raw data, normalizes it into a consistent structure, and stores it f
 │   └── artist_tracker.sqlite                   # The actual database
 ├── spotifly                                    # The scrapper
 │   ├── scrap_artists.sh                        # Script to automate scraping
-│   ├── spotifly
-│   │   └── spiders
-│   │       └── spotifly_spider.py              # Our main spider
+│   └── spotifly
+│       └── spiders
+│           └── spotifly_spider.py              # Our main spider
 └── src
     ├── adapters
     │  ├─ platform_x_api.py              # Fetches data from Platform X API
@@ -102,15 +102,14 @@ This will fill the artist_info table that the daily runs will be based on.
 
 ### 6. Run the data collection
 
-Run the CLI script to fetch and normalize data:
-
+Start by running the initialization pipeline
 ```
-python -m src/cli
+python -m src.resolve_identities
 ```
-
-Cli will also support commands (for example, weekly updates):
-
-
+Then the daily gather job can be run using:
+```
+python -m src.cli
+```
 ---
 
 ## Summary
@@ -127,11 +126,9 @@ This structure keeps the pipeline modular and easy to extend when adding new API
 ### Changing the tracked artists config
 
 Our tracked_artists config file is obtained by scraping from a single spotify url
-according to spotify's recomended artists (fans also liked:).
+according to spotify's recomended artists (`fans also liked`).
 
-run the following
-
-
+To fetch a new artist list, you can run the scrapper by running the following:
 ```
 cd spotifly
 ./scrap_artists.sh <max_num_artists> <min_artist_listeners> <max_artist_listeners>
