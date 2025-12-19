@@ -102,11 +102,7 @@ This will fill the artist_info table that the daily runs will be based on.
 
 ### 6. Run the data collection
 
-Start by running the initialization pipeline
-```
-python -m src.resolve_identities
-```
-Then the daily gather job can be run using:
+The daily gather job can be run using:
 ```
 python -m src.cli
 ```
